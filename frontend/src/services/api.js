@@ -17,4 +17,9 @@ export const updateProduct = (id, data) => API.put(`/products/${id}`, data);
 export const deleteProduct = (id) => API.delete(`/products/${id}`);
 export const createPaymentIntent = (amount) => API.post('/orders/create-payment-intent', { amount });
 
+// Cart persistence APIs
+export const getCart = () => API.get('/carts/me');
+export const setCart = (items) => API.put('/carts/me', { items });
+export const clearCart = () => API.delete('/carts/me');
+
 export default API;

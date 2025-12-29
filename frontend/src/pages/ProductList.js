@@ -2,10 +2,12 @@ import React, { useEffect, useState, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { fetchProducts, deleteProduct } from '../services/api';
 import { AuthContext } from '../AuthContext';
+import { CartContext } from '../CartContext';
 
 export default function ProductList({ search, category, minPrice, maxPrice, sort }) {
   const [products, setProducts] = useState([]);
   const { user } = useContext(AuthContext);
+  const { addToCart } = useContext(CartContext);
 
   const load = async (params = {}) => {
     const res = await fetchProducts({ search: params.search, category: params.category });
@@ -34,9 +36,12 @@ export default function ProductList({ search, category, minPrice, maxPrice, sort
             <div style={{ color: '#666', fontSize: 13, marginTop: 4 }}>{p.category || ''}</div>
             <div style={{ marginTop: 10, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ fontSize: 13, color: '#444' }}>Stock: {p.stock || 0}</span>
-              {user && user.role === 'admin' && (
-                <button onClick={async () => { if (window.confirm('Delete product?')) { await deleteProduct(p._id); load({ search, category, minPrice, maxPrice, sort }); } }} style={{ padding: '6px 8px' }}>Delete</button>
-              )}
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                <button onClick={() => { addToCart(p, 1); window.alert('Added "' + p.name + '" to cart'); }} disabled={(p.stock || 0) <= 0} style={{ padding: '6px 8px' }}>{(p.stock || 0) <= 0 ? 'Out of stock' : 'Add to cart'}</button>
+                {user && user.role === 'admin' && (
+                  <button onClick={async () => { if (window.confirm('Delete product?')) { await deleteProduct(p._id); load({ search, category, minPrice, maxPrice, sort }); } }} style={{ padding: '6px 8px' }}>Delete</button>
+                )}
+              </div>
             </div>
           </div>
         ))}

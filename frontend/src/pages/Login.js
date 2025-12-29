@@ -2,9 +2,11 @@ import React, { useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { login, register, setAuthToken } from '../services/api';
 import { AuthContext } from '../AuthContext';
+import { CartContext } from '../CartContext';
 
 export default function Login() {
   const { user, setUser, setToken } = useContext(AuthContext);
+  const { persistCart } = useContext(CartContext);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [mode, setMode] = useState('login');
@@ -17,6 +19,9 @@ export default function Login() {
   const submit = async () => {
     try {
       if (mode === 'login') {
+        // Persist any current user's cart first so we don't lose it when replacing the token
+        try { await persistCart(); } catch (e) { /* ignore */ }
+
         const res = await login({ email, password });
         const token = res.data.access_token;
         localStorage.setItem('token', token);

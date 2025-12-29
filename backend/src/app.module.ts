@@ -4,6 +4,7 @@ import { ProductsModule } from './products/products.module';
 import { OrdersModule } from './orders/orders.module';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
+import { CartsModule } from './carts/carts.module';
 import * as dotenv from 'dotenv';
 
 dotenv.config();
@@ -14,7 +15,9 @@ dotenv.config();
     ProductsModule,
     OrdersModule,
     UsersModule,
-    AuthModule
+    AuthModule,
+    // Cart persistence for authenticated users
+    CartsModule
   ]
 })
 export class AppModule {}
