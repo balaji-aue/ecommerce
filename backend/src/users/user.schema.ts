@@ -14,6 +14,17 @@ export class User {
   @Prop({ default: 'user' })
   role: string; // 'user' | 'admin'
 
+  // New optional user profile fields
+  @Prop()
+  firstName?: string;
+
+  @Prop()
+  lastName?: string;
+
+  @Prop()
+  mobile?: string;
+
+  // kept for backwards-compatibility
   @Prop()
   name?: string;
 }

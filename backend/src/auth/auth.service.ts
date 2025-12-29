@@ -22,6 +22,11 @@ export class AuthService {
     return { _id: u._id, email: u.email, role: u.role };
   }
 
+  async update(userId: string, data: any) {
+    // Pass through to UsersService to handle password hashing (if provided) and validation
+    return this.users.update(userId, data);
+  }
+
   async me(userId: string) {
     return this.users.findOne(userId);
   }

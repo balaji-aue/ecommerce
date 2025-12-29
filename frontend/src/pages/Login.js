@@ -10,6 +10,9 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [mode, setMode] = useState('login');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [mobile, setMobile] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -31,8 +34,12 @@ export default function Login() {
         setUser(meRes.data);
         navigate('/');
       } else {
-        await register({ email, password });
+        // include optional profile fields during registration
+        await register({ email, password, firstName, lastName, mobile });
+        // switch back to login so user can sign in
         setMode('login');
+        // keep fields so user can quickly login; clear password for safety
+        setPassword('');
       }
     } catch (e) {
       console.error(e);
@@ -45,6 +52,15 @@ export default function Login() {
       <h3>{mode === 'login' ? 'Login' : 'Register'}</h3>
       <input value={email} onChange={e => setEmail(e.target.value)} placeholder="email" />
       <input value={password} onChange={e => setPassword(e.target.value)} placeholder="password" type="password" />
+
+      {mode === 'register' && (
+        <>
+          <input value={firstName} onChange={e => setFirstName(e.target.value)} placeholder="first name" />
+          <input value={lastName} onChange={e => setLastName(e.target.value)} placeholder="last name" />
+          <input value={mobile} onChange={e => setMobile(e.target.value)} placeholder="mobile" />
+        </>
+      )}
+
       <button onClick={submit}>{mode === 'login' ? 'Login' : 'Register'}</button>
       <button onClick={() => setMode(mode === 'login' ? 'register' : 'login')} style={{ marginLeft: 8 }}>{mode === 'login' ? 'Create account' : 'Back to login'}</button>
     </div>

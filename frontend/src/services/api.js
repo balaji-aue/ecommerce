@@ -10,6 +10,7 @@ export const setAuthToken = (token) => {
 export const login = (credentials) => API.post('/auth/login', credentials);
 export const register = (data) => API.post('/auth/register', data);
 export const me = () => API.get('/auth/me');
+export const updateMe = (data) => API.put('/auth/me', data);
 
 export const fetchProducts = (params) => API.get('/products', { params });
 export const createProduct = (data) => API.post('/products', data);

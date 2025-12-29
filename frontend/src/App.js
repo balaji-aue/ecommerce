@@ -5,6 +5,8 @@ import Sidebar from './components/Sidebar';
 import ProductForm from './pages/ProductForm';
 import Login from './pages/Login';
 import Cart from './pages/Cart';
+import Profile from './pages/Profile';
+import ProfileView from './pages/ProfileView';
 import { AuthProvider, AuthContext } from './AuthContext';
 import { CartProvider, CartContext } from './CartContext';
 import { fetchProducts } from './services/api';
@@ -25,7 +27,13 @@ function Header({ user, onLogout }) {
         <Link to="/cart" style={{ color: 'inherit', textDecoration: 'none' }}><button style={{ padding: '6px 8px', borderRadius: 6 }}>Cart ({totalItems})</button></Link>
         {user ? (
           <>
-            <span style={{ fontSize: 13 }}>Signed in as <strong>{user.email}</strong> ({user.role})</span>
+            {(() => {
+              const name = ((user.firstName || user.lastName) ? `${(user.firstName || '').trim()} ${(user.lastName || '').trim()}`.trim() : (user.name || user.email));
+              return (
+                <span style={{ fontSize: 13 }}>Signed in as <strong>{name}</strong></span>
+              );
+            })()}
+            <Link to="/profile"><button style={{ padding: '6px 8px', borderRadius: 6, marginLeft: 8 }}>Profile</button></Link>
             <button onClick={handleLogout} style={{ padding: '6px 10px', borderRadius: 6 }}>Logout</button>
           </>
         ) : (
@@ -91,6 +99,8 @@ function Inner() {
             <Route path="/cart" element={<Cart />} />
 
             <Route path="/login" element={<Login />} />
+
+            <Route path="/profile" element={user ? <Profile /> : <Navigate to="/login" replace />} />
 
           </Routes>
         </main>
