@@ -1,45 +1,16 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Link, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Link, Navigate, useLocation } from 'react-router-dom';
 import ProductList from './pages/ProductList';
+import Sidebar from './components/Sidebar';
 import ProductForm from './pages/ProductForm';
 import Login from './pages/Login';
 import { AuthProvider, AuthContext } from './AuthContext';
 import { fetchProducts } from './services/api';
 
-function Header({ user, onLogout, search, setSearch, category, setCategory }) {
-  const [categories, setCategories] = useState([]);
-
-  useEffect(() => {
-    (async () => {
-      try {
-        const res = await fetchProducts();
-        const cats = Array.from(new Set((res.data || []).map(p => p.category).filter(Boolean)));
-        setCategories(cats);
-      } catch (e) {
-        console.error(e);
-      }
-    })();
-  }, []);
-
+function Header({ user, onLogout }) {
   return (
-    <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16, padding: '12px 18px', background: '#0f172a', color: '#fff', borderRadius: 8 }}>
+    <header style={{ position: 'sticky', top: 0, zIndex: 1000, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16, padding: '12px 18px', background: '#0f172a', color: '#fff', borderRadius: 8, height: 64, boxSizing: 'border-box' }}>
       <div style={{ fontSize: 18, fontWeight: 700 }}><Link to="/" style={{ color: 'inherit', textDecoration: 'none' }}>MyKartDL</Link></div>
-      <div style={{ display: 'flex', gap: 8, alignItems: 'center', flex: 1, marginLeft: 16 }}>
-        <input
-          placeholder="Search products..."
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          style={{ flex: 1, padding: 8, borderRadius: 6, border: '1px solid #ccc' }}
-        />
-        <select
-          value={category}
-          onChange={e => setCategory(e.target.value)}
-          style={{ width: 180, padding: 8, borderRadius: 6, border: '1px solid #ccc' }}
-        >
-          <option value="">All</option>
-          {categories.map(c => <option key={c} value={c}>{c}</option>)}
-        </select>
-      </div>
       <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
         {user ? (
           <>
@@ -52,34 +23,64 @@ function Header({ user, onLogout, search, setSearch, category, setCategory }) {
       </div>
     </header>
   );
-}
+} 
 
 function Inner() {
   const { user, logout } = useContext(AuthContext);
+  const location = useLocation();
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('');
+  const [minPrice, setMinPrice] = useState('');
+  const [maxPrice, setMaxPrice] = useState('');
+  const [sort, setSort] = useState('');
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetchProducts();
+        const cats = Array.from(new Set((res.data || []).map(p => p.category).filter(Boolean)));
+        setCategories(cats);
+      } catch (e) { console.error(e); }
+    })();
+  }, []);
 
   return (
-    <div>
-      <Header user={user} onLogout={logout} search={search} setSearch={setSearch} category={category} setCategory={setCategory} />
+    <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+      <Header user={user} onLogout={logout} />
 
-      <div style={{ padding: 20 }}>
-        <Routes>
-          <Route path="/" element={
-            <>
-              {user && user.role === 'admin' && <div style={{ marginTop: 20 }}><Link to="/products/new"><button style={{ padding: '8px 12px', borderRadius: 6 }}>Add product</button></Link></div>}
-              <hr />
-              <ProductList search={search} category={category} />
-            </>
-          } />
+      <div style={{ display: 'flex', gap: 16, padding: 20, flex: 1, boxSizing: 'border-box', minHeight: 0 }}>
+        {location.pathname !== '/login' && (
+          <aside style={{ width: 260, alignSelf: 'flex-start', maxHeight: '100%', overflowY: 'auto' }}>
+            <Sidebar
+              search={search} setSearch={setSearch}
+              category={category} setCategory={setCategory}
+              categories={categories}
+              minPrice={minPrice} setMinPrice={setMinPrice}
+              maxPrice={maxPrice} setMaxPrice={setMaxPrice}
+              sort={sort} setSort={setSort}
+            />
+          </aside>
+        )}
 
-          <Route path="/products" element={<ProductList search={search} category={category} />} />
+        <main style={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>
+          <Routes>
+            <Route path="/" element={
+              <>
+                {user && user.role === 'admin' && <div style={{ marginTop: 20 }}><Link to="/products/new"><button style={{ padding: '8px 12px', borderRadius: 6 }}>Add product</button></Link></div>}
+                <hr />
+                <ProductList search={search} category={category} minPrice={minPrice} maxPrice={maxPrice} sort={sort} />
+              </>
+            } />
 
-          <Route path="/products/new" element={user && user.role === 'admin' ? <ProductForm /> : <Navigate to="/login" replace />} />
+            <Route path="/products" element={<ProductList search={search} category={category} minPrice={minPrice} maxPrice={maxPrice} sort={sort} />} />
 
-          <Route path="/login" element={<Login />} />
+            <Route path="/products/new" element={user && user.role === 'admin' ? <ProductForm /> : <Navigate to="/login" replace />} />
 
-        </Routes>
+            <Route path="/login" element={<Login />} />
+
+          </Routes>
+        </main>
       </div>
     </div>
   );
@@ -89,7 +90,7 @@ export default function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
-        <div style={{ maxWidth: 1100, margin: '18px auto' }}>
+        <div style={{ maxWidth: 1100, margin: '18px auto', height: 'calc(100vh - 36px)', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
           <Inner />
         </div>
       </BrowserRouter>

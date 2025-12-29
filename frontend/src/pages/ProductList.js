@@ -3,16 +3,21 @@ import { Link } from 'react-router-dom';
 import { fetchProducts, deleteProduct } from '../services/api';
 import { AuthContext } from '../AuthContext';
 
-export default function ProductList({ search, category }) {
+export default function ProductList({ search, category, minPrice, maxPrice, sort }) {
   const [products, setProducts] = useState([]);
   const { user } = useContext(AuthContext);
 
   const load = async (params = {}) => {
-    const res = await fetchProducts(params);
-    setProducts(res.data || []);
+    const res = await fetchProducts({ search: params.search, category: params.category });
+    let items = res.data || [];
+    if (params.minPrice) items = items.filter(p => Number(p.price || 0) >= Number(params.minPrice));
+    if (params.maxPrice) items = items.filter(p => Number(p.price || 0) <= Number(params.maxPrice));
+    if (params.sort === 'price_asc') items.sort((a, b) => Number(a.price || 0) - Number(b.price || 0));
+    if (params.sort === 'price_desc') items.sort((a, b) => Number(b.price || 0) - Number(a.price || 0));
+    setProducts(items);
   };
 
-  useEffect(() => { load({ search, category }); }, [search, category]);
+  useEffect(() => { load({ search, category, minPrice, maxPrice, sort }); }, [search, category, minPrice, maxPrice, sort]);
 
   return (
     <div>
@@ -20,7 +25,7 @@ export default function ProductList({ search, category }) {
       {user && user.role === 'admin' && <div style={{ marginBottom: 12 }}><Link to="/products/new"><button style={{ padding: '8px 12px', borderRadius: 6 }}>Add product</button></Link></div>}
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16, marginTop: 12 }}>
         {products.map(p => (
-          <div key={p._id} style={{ width: 240, border: '1px solid #eee', borderRadius: 8, padding: 12, boxShadow: '0 2px 6px rgba(0,0,0,0.04)' }}>
+          <div key={p._id} style={{ width: 200, border: '1px solid #eee', borderRadius: 8, padding: 12, boxShadow: '0 2px 6px rgba(0,0,0,0.04)' }}>
             <div style={{ height: 160, marginBottom: 8, overflow: 'hidden', borderRadius: 6, background: '#fafafa', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <img src={(p.images && p.images[0]) || 'https://via.placeholder.com/300x200?text=No+Image'} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             </div>
@@ -30,7 +35,7 @@ export default function ProductList({ search, category }) {
             <div style={{ marginTop: 10, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ fontSize: 13, color: '#444' }}>Stock: {p.stock || 0}</span>
               {user && user.role === 'admin' && (
-                <button onClick={async () => { if (window.confirm('Delete product?')) { await deleteProduct(p._id); load({ search, category }); } }} style={{ padding: '6px 8px' }}>Delete</button>
+                <button onClick={async () => { if (window.confirm('Delete product?')) { await deleteProduct(p._id); load({ search, category, minPrice, maxPrice, sort }); } }} style={{ padding: '6px 8px' }}>Delete</button>
               )}
             </div>
           </div>
