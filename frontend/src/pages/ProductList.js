@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useContext } from 'react';
+import { Link } from 'react-router-dom';
 import { fetchProducts, deleteProduct } from '../services/api';
 import { AuthContext } from '../AuthContext';
 
@@ -16,6 +17,7 @@ export default function ProductList({ search, category }) {
   return (
     <div>
       <h2 style={{ marginTop: 18 }}>Products</h2>
+      {user && user.role === 'admin' && <div style={{ marginBottom: 12 }}><Link to="/products/new"><button style={{ padding: '8px 12px', borderRadius: 6 }}>Add product</button></Link></div>}
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16, marginTop: 12 }}>
         {products.map(p => (
           <div key={p._id} style={{ width: 240, border: '1px solid #eee', borderRadius: 8, padding: 12, boxShadow: '0 2px 6px rgba(0,0,0,0.04)' }}>

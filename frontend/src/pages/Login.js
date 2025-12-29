@@ -1,12 +1,18 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { login, register, setAuthToken } from '../services/api';
 import { AuthContext } from '../AuthContext';
 
 export default function Login() {
-  const { setUser, setToken } = useContext(AuthContext);
+  const { user, setUser, setToken } = useContext(AuthContext);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [mode, setMode] = useState('login');
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user) navigate('/');
+  }, [user, navigate]);
 
   const submit = async () => {
     try {
@@ -18,6 +24,7 @@ export default function Login() {
         setToken(token);
         const meRes = await (await import('../services/api')).me();
         setUser(meRes.data);
+        navigate('/');
       } else {
         await register({ email, password });
         setMode('login');
