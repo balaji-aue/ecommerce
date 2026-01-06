@@ -27,6 +27,18 @@ Product endpoints:
 Notes:
 - To create an initial admin, register a user via `/auth/register` then update its `role` to `admin` in the database (e.g., via Mongo shell or UI).
 
+New endpoints (addresses & orders):
+- `GET /addresses/me` — list authenticated user's addresses
+- `POST /addresses/me` — create an address for the authenticated user
+- `PUT /addresses/:id` — update an address for the authenticated user
+- `DELETE /addresses/:id` — remove an address for the authenticated user
+
+- `POST /orders` — create an order (authenticated); payload: `{ items: [{ product, qty }], address: {...}, total, paymentMethod }`
+- `GET /orders/me` — list authenticated user's orders
+
+Payment flows:
+- A Stripe demo `POST /orders/create-payment-intent` endpoint remains for card flows; the frontend includes a UPI QR-demo (no payment capture) that displays a QR for a demo UPI ID.
+
 Testing locally:
 1. From `backend/` run `npm install` then `npm run start:dev` (set `JWT_SECRET` and `MONGO_URI` in `.env`).
 2. Register a user: `curl -X POST http://localhost:4000/auth/register -H 'Content-Type: application/json' -d '{"email":"admin@example.com","password":"secret"}'`

@@ -18,6 +18,16 @@ export const updateProduct = (id, data) => API.put(`/products/${id}`, data);
 export const deleteProduct = (id) => API.delete(`/products/${id}`);
 export const createPaymentIntent = (amount) => API.post('/orders/create-payment-intent', { amount });
 
+// Addresses
+export const getAddresses = () => API.get('/addresses/me');
+export const createAddress = (payload) => API.post('/addresses/me', payload);
+export const updateAddress = (id, payload) => API.put(`/addresses/${id}`, payload);
+export const deleteAddress = (id) => API.delete(`/addresses/${id}`);
+
+// Orders
+export const createOrder = (payload) => API.post('/orders', payload);
+export const getOrders = () => API.get('/orders/me');
+
 // Cart persistence APIs
 export const getCart = () => API.get('/carts/me');
 export const setCart = (items) => API.put('/carts/me', { items });

@@ -7,6 +7,8 @@ import Login from './pages/Login';
 import Cart from './pages/Cart';
 import Profile from './pages/Profile';
 import ProfileView from './pages/ProfileView';
+import Checkout from './pages/Checkout';
+import Orders from './pages/Orders';
 import { AuthProvider, AuthContext } from './AuthContext';
 import { CartProvider, CartContext } from './CartContext';
 import { fetchProducts } from './services/api';
@@ -34,6 +36,7 @@ function Header({ user, onLogout }) {
               );
             })()}
             <Link to="/profile"><button style={{ padding: '6px 8px', borderRadius: 6, marginLeft: 8 }}>Profile</button></Link>
+            <Link to="/orders"><button style={{ padding: '6px 8px', borderRadius: 6, marginLeft: 8 }}>Orders</button></Link>
             <button onClick={handleLogout} style={{ padding: '6px 10px', borderRadius: 6 }}>Logout</button>
           </>
         ) : (
@@ -69,7 +72,7 @@ function Inner() {
       <Header user={user} onLogout={logout} />
 
       <div style={{ display: 'flex', gap: 16, padding: 20, flex: 1, boxSizing: 'border-box', minHeight: 0 }}>
-        {location.pathname !== '/login' && location.pathname !== '/cart' && (
+        {location.pathname === '/' && (
           <aside style={{ width: 260, alignSelf: 'flex-start', maxHeight: '100%', overflowY: 'auto' }}>
             <Sidebar
               search={search} setSearch={setSearch}
@@ -97,6 +100,8 @@ function Inner() {
             <Route path="/products/new" element={user && user.role === 'admin' ? <ProductForm /> : <Navigate to="/login" replace />} />
 
             <Route path="/cart" element={<Cart />} />
+            <Route path="/checkout" element={<Checkout />} />
+            <Route path="/orders" element={user ? <Orders /> : <Navigate to="/login" replace />} />
 
             <Route path="/login" element={<Login />} />
 
